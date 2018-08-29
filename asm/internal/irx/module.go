@@ -267,7 +267,16 @@ func Translate(module *ast.Module) (*ir.Module, error) {
 			switch n := n.(type) {
 			case **ir.BasicBlock:
 				if (*n).Term == nil {
-					(*n) = m.locals[(*n).Name].(*ir.BasicBlock)
+					var ok bool
+					name := (*n).Name
+					l, ok := m.locals[name]
+					if !ok {
+						return
+					}
+					(*n), ok = l.(*ir.BasicBlock)
+					if !ok {
+						panic(fmt.Errorf("%q %T %v", l, l, name))
+					}
 				}
 			}
 		}
